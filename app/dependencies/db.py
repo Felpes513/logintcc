@@ -1,14 +1,8 @@
 from contextlib import contextmanager
+from app.configs.settings import DB_CONFIG
 import pymysql
 
 # CONFIGURAÇÕES DO BANCO (idealmente virão de variáveis de ambiente)
-DB_CONFIG = {
-    "host": "localhost",
-    "user": "root",
-    "password": "1404",
-    "database": "db_uscs_ic",
-}
-
 @contextmanager
 def db_connection():
     conn = pymysql.connect(**DB_CONFIG)

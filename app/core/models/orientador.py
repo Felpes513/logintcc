@@ -2,7 +2,8 @@ from pydantic import BaseModel, EmailStr, Field, field_validator, constr
 import re
 from app.core.security import gerar_hash_senha
 
-class Aluno(BaseModel):
+
+class Orientador(BaseModel):
     nome_completo: str = Field(..., min_length=3, max_length=255)
     email: EmailStr
     cpf: str = Field(

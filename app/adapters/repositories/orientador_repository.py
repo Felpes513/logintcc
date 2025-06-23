@@ -1,21 +1,20 @@
-from app.core.models.aluno import Aluno
+from app.core.models.orientador import Orientador
 from pymysql.err import IntegrityError
-from app.core.security import gerar_hash_senha
 
-class AlunoRepository:
+class OrientadorRepository:
     def __init__(self, db_conn):
         self.db_conn = db_conn
 
-    def create(self, aluno: Aluno) -> int:
+    def create(self, orientador: Orientador) -> int:
         cursor = self.db_conn.cursor()
 
         try:
             query = """
-            INSERT INTO tb_cadastro_aluno (nome_completo, email, cpf, id_curso, senha_hash)
+            INSERT INTO tb_cadastro_orientador (nome_completo, email, cpf, id_curso, senha_hash)
             VALUES (%s, %s, %s, %s, %s)
             """
-            cursor.execute(query, (aluno.nome_completo.lower(), aluno.email,
-                                   aluno.cpf, aluno.id_curso, aluno.senha_hash))
+            cursor.execute(query, (orientador.nome_completo.lower(), orientador.email,
+                                   orientador.cpf, orientador.id_curso, orientador.senha_hash))
             self.db_conn.commit()
             return cursor.lastrowid
 

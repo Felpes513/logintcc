@@ -9,25 +9,33 @@ class OrientadorRepository:
         cursor = self.db_conn.cursor()
 
         try:
-            query = """
-            INSERT INTO tb_cadastro_orientador (nome_completo, email, cpf, id_curso, senha_hash)
-            VALUES (%s, %s, %s, %s, %s)
-            """
-            cursor.execute(query, (orientador.nome_completo.lower(), orientador.email,
-                                   orientador.cpf, orientador.id_curso, orientador.senha_hash))
+            cursor.execute("""
+                INSERT INTO tb_cadastro_orientador (nome_completo, email, cpf, senha_hash)
+                VALUES (%s, %s, %s, %s)
+            """, (
+                orientador.nome_completo.lower(),
+                orientador.email,
+                orientador.cpf,
+                orientador.senha_hash
+            ))
             self.db_conn.commit()
-            return cursor.lastrowid
+            orientador_id = cursor.lastrowid
+
+            # Se cursos foram enviados, associe
+            for id_curso in orientador.cursos:
+                cursor.execute("""
+                    INSERT INTO tb_orientador_curso (id_orientador, id_curso)
+                    VALUES (%s, %s)
+                """, (orientador_id, id_curso))
+
+            self.db_conn.commit()
+            return orientador_id
 
         except IntegrityError as err:
-            error_msg = str(err).lower()
-            if "duplicate entry" in error_msg and "cpf" in error_msg:
+            msg = str(err).lower()
+            if "duplicate entry" in msg and "cpf" in msg:
                 raise ValueError("CPF já cadastrado.")
-
-            elif "duplicate entry" in error_msg and "email" in error_msg:
+            elif "duplicate entry" in msg and "email" in msg:
                 raise ValueError("E-mail já cadastrado.")
-
-            elif "foreign key constraint fails" in error_msg:
-                raise ValueError("ID do curso inválido.")
-
             else:
                 raise

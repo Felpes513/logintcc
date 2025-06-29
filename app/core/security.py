@@ -1,21 +1,53 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta
 import jwt
-from app.configs import settings  # pegar SECRET_KEY do settings
+import logging
+from app.configs import settings
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+# Configuração mais robusta do contexto
+pwd_context = CryptContext(
+    schemes=["bcrypt"], 
+    deprecated="auto",
+    bcrypt__rounds=12,  # Especifica o número de rounds
+)
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
-SECRET_KEY = settings.SECRET_KEY  # ✅ uso correto da chave via config centralizada
+SECRET_KEY = settings.SECRET_KEY
 
-def gerar_hash_senha(senha):
-    return pwd_context.hash(senha)
+def gerar_hash_senha(senha: str) -> str:
+    """Gera hash da senha com tratamento de erro"""
+    try:
+        return pwd_context.hash(senha)
+    except Exception as e:
+        logging.error(f"Erro ao gerar hash: {e}")
+        raise
 
-def verificar_senha(senha, senha_hash):
-    return pwd_context.verify(senha, senha_hash)
+def verificar_senha(senha: str, senha_hash: str) -> bool:
+    """Verifica senha com tratamento robusto de erros"""
+    if not senha or not senha_hash:
+        return False
+    
+    try:
+        # Log para debug (remover em produção)
+        logging.debug(f"Verificando senha. Hash: {senha_hash[:20]}...")
+        
+        result = pwd_context.verify(senha, senha_hash)
+        logging.debug(f"Resultado da verificação: {result}")
+        return result
+        
+    except Exception as e:
+        logging.error(f"Erro ao verificar senha: {e}")
+        
+        # Fallback: tentar com bcrypt diretamente
+        try:
+            import bcrypt
+            return bcrypt.checkpw(senha.encode('utf-8'), senha_hash.encode('utf-8'))
+        except Exception as e2:
+            logging.error(f"Erro no fallback bcrypt: {e2}")
+            return False
 
 def criar_token_acesso(dados: dict):
     dados_exp = dados.copy()

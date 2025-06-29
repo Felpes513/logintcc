@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr, Field, field_validator, constr
+from typing import Annotated, List, Optional
 import re
 from app.core.security import gerar_hash_senha
-
 
 class Orientador(BaseModel):
     nome_completo: str = Field(..., min_length=3, max_length=255)
@@ -11,9 +11,8 @@ class Orientador(BaseModel):
         pattern=r"^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$",
         description="CPF no formato xxx.xxx.xxx-xx ou como 11 dígitos"
     )
-
-    id_curso: int
-    senha: constr(min_length=6)
+    senha: Annotated[str, constr(min_length=6)]  # ✅ corrigido
+    cursos: Optional[List[int]] = []
 
     @property
     def senha_hash(self) -> str:

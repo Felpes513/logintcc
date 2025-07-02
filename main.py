@@ -7,6 +7,9 @@ from app.adapters.web.aluno_controller import router as aluno_controller
 from app.adapters.web.auth_controller import router as auth_controller
 from app.adapters.web.orientador_controller import router as orientador_controller
 from app.adapters.web.secretaria_controller import router as secretaria_controller
+from app.adapters.web.register_controller import router as register_router
+
+
 
 import uvicorn
 
@@ -30,5 +33,7 @@ app.include_router(aluno_controller)
 app.include_router(auth_controller)
 app.include_router(orientador_controller)
 app.include_router(secretaria_controller)
+app.include_router(register_router)
+
 
 # uvicorn.run(app, host='localhost', port=8001)

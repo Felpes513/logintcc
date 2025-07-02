@@ -17,7 +17,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db=Depends(get_db_co
     cursor = db.cursor()
     
     # Consulta SQL
-    cursor.execute("SELECT id_aluno, senha_hash FROM cadastro_aluno WHERE email = %s", (email,))
+    cursor.execute("SELECT id_aluno, senha_hash FROM tb_cadastro_aluno WHERE email = %s", (email,))
     result = cursor.fetchone()
 
     if not result:
@@ -84,7 +84,7 @@ def login_orientador(form_data: OAuth2PasswordRequestForm = Depends(), db=Depend
     cursor = db.cursor()
     
     # Consulta SQL
-    cursor.execute("SELECT id_orientador, senha_hash FROM cadastro_orientador WHERE email = %s", (email,))
+    cursor.execute("SELECT id_orientador, senha_hash FROM tb_cadastro_orientador WHERE email = %s", (email,))
     result = cursor.fetchone()
 
     if not result:
@@ -149,7 +149,7 @@ def login_secretaria(form_data: OAuth2PasswordRequestForm = Depends(), db=Depend
     senha = form_data.password
 
     cursor = db.cursor()
-    cursor.execute("SELECT id_secretaria, senha_hash FROM cadastro_secretaria WHERE email = %s", (email,))
+    cursor.execute("SELECT id_secretaria, senha_hash FROM tb_cadastro_secretaria WHERE email = %s", (email,))
     result = cursor.fetchone()
 
     if not result:

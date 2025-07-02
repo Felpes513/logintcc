@@ -5,15 +5,14 @@ class SecretariaRepository:
     def __init__(self, db_conn):
         self.db_conn = db_conn
 
-    def create(self, secretaria: Secretaria) -> int:
+    def create(self, secretaria: Secretaria, senha_hash: str) -> int:
         cursor = self.db_conn.cursor()
-
         try:
             query = """
             INSERT INTO tb_cadastro_secretaria (nome_completo, email, senha_hash)
             VALUES (%s, %s, %s)
             """
-            cursor.execute(query, (secretaria.nome_completo.lower(), secretaria.email, secretaria.senha_hash))
+            cursor.execute(query, (secretaria.nome_completo.lower(), secretaria.email, senha_hash))
             self.db_conn.commit()
             return cursor.lastrowid
 

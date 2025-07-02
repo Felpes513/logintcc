@@ -6,4 +6,5 @@ class CreateSecretariaUseCase:
         self.repo = repo
 
     def execute(self, secretaria: Secretaria) -> int:
-        return self.repo.create(secretaria)
+        senha_hash = secretaria.gerar_hash()
+        return self.repo.create(secretaria, senha_hash)

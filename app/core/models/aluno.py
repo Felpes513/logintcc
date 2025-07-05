@@ -1,6 +1,8 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, constr
+from pydantic import BaseModel, EmailStr, Field, field_validator
 import re
 from app.core.security import gerar_hash_senha
+from typing import Annotated
+from pydantic import BaseModel, EmailStr
 
 class Aluno(BaseModel):
     nome_completo: str = Field(..., min_length=3, max_length=255)
@@ -12,7 +14,7 @@ class Aluno(BaseModel):
     )
 
     id_curso: int
-    senha: constr(min_length=6)
+    senha: Annotated[str, Field(min_length=6)]
 
     @property
     def senha_hash(self) -> str:
@@ -33,3 +35,15 @@ class Aluno(BaseModel):
             raise ValueError("CPF inválido")
 
         return cpf
+
+
+        return cpf
+class AlunoSchema(BaseModel):
+    id_aluno: int
+    nome_completo: str
+    email: EmailStr
+    cpf: str
+    id_curso: int
+
+    class Config:
+        orm_mode = True

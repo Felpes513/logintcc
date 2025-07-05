@@ -9,7 +9,6 @@ from app.dependencies import get_db_conn
 
 router = APIRouter(tags=["Cadastro"])
 
-# Rota para cadastro de orientador
 @router.post("/register-orientador")
 def register_orientador(orientador: Orientador, db=Depends(get_db_conn)):
     repo = OrientadorRepository(db)
@@ -26,6 +25,7 @@ def register_orientador(orientador: Orientador, db=Depends(get_db_conn)):
         raise HTTPException(status_code=400, detail=str(e))
     except Exception:
         raise HTTPException(status_code=500, detail="Erro interno no servidor")
+
 
 
 # Rota para cadastro de secretaria

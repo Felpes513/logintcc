@@ -1,6 +1,7 @@
 from app.core.models.curso import Curso
+from app.core.ports.output.porta_curso_repository import ICursoRepository  # ✅ importa a interface
 
-class CursoRepository:
+class CursoRepository(ICursoRepository):  # ✅ herda da interface
     def __init__(self, db_conn):
         self.db_conn = db_conn
 
@@ -16,5 +17,4 @@ class CursoRepository:
         query = "SELECT id_curso, nome FROM tb_curso"
         cursor.execute(query)
         rows = cursor.fetchall()
-        return [{"id_curso": row[0], "nome": row[1]} for row in rows]
-
+        return [{"id_curso": row["id_curso"], "nome": row["nome"]} for row in rows]

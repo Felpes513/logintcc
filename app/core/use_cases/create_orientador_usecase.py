@@ -1,8 +1,8 @@
 from app.core.models.orientador import Orientador
-from app.core.ports.output.porta_orientador_repository import IOrientadorRepository
+from app.adapters.repositories.orientador_repository import OrientadorRepository
 
 class CreateOrientadorUseCase:
-    def __init__(self, repo: IOrientadorRepository):
+    def __init__(self, repo: OrientadorRepository):
         self.repo = repo
 
     def execute(self, orientador: Orientador) -> int:

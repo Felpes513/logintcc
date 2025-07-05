@@ -1,8 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field, field_validator, constr
-from typing import Annotated, List, Optional
 import re
+from typing import Annotated, List, Optional
+from pydantic import BaseModel, EmailStr, Field, field_validator, constr
 from app.core.security import gerar_hash_senha
 
+# 🔹 1. Pydantic - Entrada (validação + lógica de domínio)
 class Orientador(BaseModel):
     nome_completo: str = Field(..., min_length=3, max_length=255)
     email: EmailStr
@@ -11,7 +12,7 @@ class Orientador(BaseModel):
         pattern=r"^\d{3}\.\d{3}\.\d{3}-\d{2}$|^\d{11}$",
         description="CPF no formato xxx.xxx.xxx-xx ou como 11 dígitos"
     )
-    senha: Annotated[str, constr(min_length=6)]  # ✅ corrigido
+    senha: Annotated[str, constr(min_length=6)]
     cursos: Optional[List[int]] = []
 
     @property
@@ -25,7 +26,7 @@ class Orientador(BaseModel):
             raise ValueError("CPF inválido")
 
         def calc_digito(digs):
-            s = sum(int(d) * i for d, i in zip(digs, range(len(digs)+1, 1, -1)))
+            s = sum(int(d) * i for d, i in zip(digs, range(len(digs) + 1, 1, -1)))
             r = (s * 10) % 11
             return '0' if r == 10 else str(r)
 
@@ -33,3 +34,10 @@ class Orientador(BaseModel):
             raise ValueError("CPF inválido")
 
         return cpf
+class OrientadorSchema(BaseModel):
+    id: int
+    nome_completo: str
+    email: EmailStr
+
+    class Config:
+        from_attributes = True

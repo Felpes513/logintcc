@@ -41,13 +41,21 @@ class ProjetoRepository:
 
     def buscar_por_id(self, id_projeto: int):
         cursor = self.db_conn.cursor(pymysql.cursors.DictCursor)
+
+        # 1. Buscar dados principais do projeto
         query = """
             SELECT 
                 p.id_projeto,
                 p.titulo_projeto AS nomeProjeto,
                 p.resumo,
+                p.id_orientador,
+                o.email AS orientador_email,
                 c.campus,
-                o.nome_completo AS nomeOrientador
+                c.id_campus,
+                o.nome_completo AS nomeOrientador,
+                p.quantidade_maxima_alunos AS quantidadeMaximaAlunos,
+                p.data_criacao,
+                p.data_atualizacao
             FROM tb_novo_projeto p
             LEFT JOIN tb_campus c ON p.id_campus = c.id_campus
             LEFT JOIN tb_cadastro_orientador o ON p.id_orientador = o.id_orientador
@@ -55,11 +63,30 @@ class ProjetoRepository:
         """
         cursor.execute(query, (id_projeto,))
         projeto = cursor.fetchone()
-        
+
         if not projeto:
             raise ValueError(f"Projeto com ID {id_projeto} não encontrado")
-        
+
+        # 2. Buscar alunos inscritos
+        query_alunos = """
+            SELECT 
+                a.id_aluno AS id,
+                a.nome_completo AS nome,
+                a.email,
+                i.pdf_url AS documentoNotasUrl
+            FROM tb_inscricao_projeto i
+            JOIN tb_cadastro_aluno a ON i.id_aluno = a.id_aluno
+            WHERE i.id_projeto = %s
+        """
+        cursor.execute(query_alunos, (id_projeto,))
+        alunos = cursor.fetchall()
+
+        projeto["alunos"] = alunos
+        projeto["nomesAlunos"] = [a["nome"] for a in alunos]
+
         return projeto
+
+
 
     def atualizar(self, id_projeto: int, projeto: Projeto):
         # Primeiro verifica se o projeto existe

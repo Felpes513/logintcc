@@ -1,6 +1,8 @@
 import os
 import shutil
 from pymysql.err import IntegrityError
+from app.core.enums.status_inscricao import StatusInscricao
+
 
 
 class InscricaoRepository:
@@ -45,14 +47,14 @@ class InscricaoRepository:
 
     def aprovar_inscricao(self, id_inscricao: int):
         cursor = self.db_conn.cursor()
-        cursor.execute("""
-            UPDATE tb_inscricao_projeto SET status = 'aprovado'
-            WHERE id_inscricao = %s
-        """, (id_inscricao,))
-        self.db_conn.commit()
 
-    def excluir_inscricao(self, id_inscricao: int):
-        cursor = self.db_conn.cursor()
+        # Atualiza o status para "SELECIONADO_ORIENTADOR"
+        cursor.execute("""
+            UPDATE tb_inscricao_projeto 
+            SET status = %s 
+            WHERE id_inscricao = %s
+        """, (StatusInscricao.SELECIONADO_ORIENTADOR, id_inscricao))
+        self.db_conn.commit()
 
         # Buscar o caminho do PDF
         cursor.execute("""
@@ -71,10 +73,32 @@ class InscricaoRepository:
             except Exception as e:
                 print(f"⚠️ Falha ao remover o arquivo PDF: {e}")
 
-    # Excluir do banco
+    def excluir_inscricao(self, id_inscricao: int):
+        cursor = self.db_conn.cursor()
+
+        # Buscar o caminho do PDF
+        cursor.execute("""
+            SELECT pdf_url FROM tb_inscricao_projeto
+            WHERE id_inscricao = %s
+        """, (id_inscricao,))
+        resultado = cursor.fetchone()
+
+        if not resultado:
+            raise ValueError("Inscrição não encontrada")
+
+        # Extrair caminho do PDF
+        pdf_path = resultado.get("pdf_url")
+        if pdf_path and os.path.exists(pdf_path):
+            try:
+                os.remove(pdf_path)
+                print(f"🗑️ PDF removido: {pdf_path}")
+            except Exception as e:
+                print(f"⚠️ Falha ao remover o arquivo PDF: {e}")
+
+        # Excluir do banco
         cursor.execute("""
             DELETE FROM tb_inscricao_projeto
             WHERE id_inscricao = %s
         """, (id_inscricao,))
         self.db_conn.commit()
-
+        print(f"✅ Inscrição com ID {id_inscricao} excluída do banco.")

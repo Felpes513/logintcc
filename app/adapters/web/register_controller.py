@@ -1,13 +1,33 @@
 from fastapi import APIRouter, Depends, HTTPException
+from app.core.models.aluno import Aluno
 from app.core.models.orientador import Orientador
 from app.core.models.secretaria import Secretaria
 from app.adapters.repositories.orientador_repository import OrientadorRepository
 from app.adapters.repositories.secretaria_repository import SecretariaRepository
 from app.core.use_cases.create_orientador_usecase import CreateOrientadorUseCase
 from app.core.use_cases.create_secretaria_usecase import CreateSecretariaUseCase
+from app.adapters.repositories.aluno_repository import AlunoRepository
+from app.core.use_cases.create_aluno_usecase import CreateAlunoUseCase
 from app.dependencies import get_db_conn
 
 router = APIRouter(tags=["Cadastro"])
+
+@router.post("/register-aluno")
+def register_aluno(aluno: Aluno, db=Depends(get_db_conn)):
+    repo = AlunoRepository(db)
+    usecase = CreateAlunoUseCase(repo)
+
+    try:
+        aluno_id = usecase.execute(aluno)
+        return {
+            "id": aluno_id,
+            "email": aluno.email,
+            "mensagem": "Aluno cadastrado com sucesso"
+        }
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception:
+        raise HTTPException(status_code=500, detail="Erro interno no servidor")
 
 @router.post("/register-orientador")
 def register_orientador(orientador: Orientador, db=Depends(get_db_conn)):

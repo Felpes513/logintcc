@@ -11,6 +11,8 @@ from app.adapters.web.register_controller import router as register_router
 from app.adapters.web.projeto_controller import router as projeto_router
 from app.adapters.web.inscricao_projeto_controller import router as inscricao_router
 from app.adapters.web.campus_controller import router as campus_router
+from app.adapters.web import relatorio_controller
+
 
 
 
@@ -41,6 +43,8 @@ app.include_router(register_router)
 app.include_router(projeto_router)
 app.include_router(inscricao_router)
 app.include_router(campus_router)
+app.include_router(relatorio_controller.router)
+
 
 
 

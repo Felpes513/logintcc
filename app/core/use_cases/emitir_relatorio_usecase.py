@@ -1,0 +1,9 @@
+# emitir_relatorio_usecase.py
+
+class EmitirRelatorioUseCase:
+    def __init__(self, repo: RelatorioRepositoryPort):
+        self.repo = repo
+
+    def criar_relatorio(self, dados): ...
+    def buscar_aluno(self, nome=None, ra=None): ...
+    def listar_relatorios_por_aluno(self, aluno_id: int): ...
